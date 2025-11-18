@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import AIAgent from './AIAgent';
+import CustomAI from './CustomAI';
 import Chat from './Chat';
 import { useApp } from './AppContext';
 import { LogIn, X } from 'lucide-react';
@@ -64,8 +65,9 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
       {!isAdminPage && <Footer />}
 
-      {/* AI Agent - Available on all pages */}
+      {/* AI Agents - Available on all pages */}
       <AIAgent />
+      <CustomAI />
 
       {/* Chat System - Available for logged-in users */}
       {user && <Chat />}
