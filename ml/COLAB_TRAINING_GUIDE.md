@@ -89,12 +89,14 @@ To verify GPU is enabled:
 3. Training starts automatically!
 
 **What happens:**
-- ⏱️ **10 min:** Install dependencies
+- ⏱️ **10-15 min:** Install dependencies + compile bitsandbytes for CUDA 12.6
 - ⏱️ **10 min:** Download Llama 3 model (~16 GB)
 - ⏱️ **2-3 hours:** Training (3 epochs)
 - ⏱️ **5 min:** Save and package model
 
 **Total time: ~2.5-3.5 hours**
+
+**Note:** The notebook automatically compiles bitsandbytes from source to ensure perfect compatibility with Google Colab's CUDA 12.6!
 
 ### Step 5: Monitor Training
 
@@ -263,28 +265,34 @@ RuntimeError: CUDA Setup failed despite GPU being available
 This occurs when bitsandbytes doesn't have pre-compiled binaries for Google Colab's CUDA version (12.6).
 
 **Solution:**
-The notebook now automatically handles this! The dependency installation cell (Cell 3) includes:
+The notebook now **automatically compiles bitsandbytes from source** for CUDA 12.6!
 
-1. **Automatic CUDA 12.x compatibility:**
-   - Uses PyTorch with CUDA 12.1 support
-   - Installs latest bitsandbytes version
-   - Adds scipy dependency
-   - Includes automatic rebuild if needed
+Cell 3 includes:
 
-2. **If error still occurs:**
+1. **Automatic source compilation:**
+   - Clones bitsandbytes repository
+   - Compiles specifically for CUDA 12.6
+   - Sets correct environment variables
+   - Verifies CUDA support after build
+   - Takes 3-5 minutes during first run
+
+2. **If compilation fails:**
    ```python
-   # Run this in a new cell:
-   !pip install --upgrade --force-reinstall --no-cache-dir bitsandbytes
-
-   # Verify installation:
-   import bitsandbytes as bnb
-   print(f"bitsandbytes version: {bnb.__version__}")
+   # Run this in a new cell to retry compilation:
+   import os
+   os.environ['CUDA_VERSION'] = '126'
+   !cd /tmp/bitsandbytes && CUDA_VERSION=126 make cuda12x
+   !cd /tmp/bitsandbytes && python setup.py install
    ```
 
-3. **Alternative: Restart runtime**
-   - `Runtime` → `Restart runtime`
-   - Re-run dependency installation cell
-   - The automatic rebuild will fix it
+3. **If error persists:**
+   - Check build logs for specific errors
+   - Ensure `build-essential` is installed
+   - Verify GPU is enabled in runtime settings
+   - Try restarting runtime and re-running all cells
+
+**Why this works:**
+Compiling from source creates binaries perfectly matched to Colab's exact CUDA 12.6 version, eliminating compatibility issues!
 
 **Prevention:**
 Always use the latest version of the notebook from your EventHub project!

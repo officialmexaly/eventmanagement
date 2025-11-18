@@ -33,11 +33,13 @@ Train your custom Llama 3 model using **free Google Colab GPU** in just 5 steps!
 3. Wait for training to complete (go grab coffee ☕)
 
 **What happens automatically:**
-- ✅ Installs dependencies (10 min)
+- ✅ Installs dependencies + builds bitsandbytes (10-15 min)
 - ✅ Downloads Llama 3 model (10 min)
 - ✅ Generates training data (1 min)
 - ✅ Trains for 3 epochs (2-3 hours)
 - ✅ Saves and packages model (5 min)
+
+**Note:** The notebook automatically compiles bitsandbytes from source to ensure CUDA 12.6 compatibility!
 
 ### Step 4: Download Model (5 minutes)
 
