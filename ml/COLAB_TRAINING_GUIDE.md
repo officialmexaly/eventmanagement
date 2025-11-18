@@ -250,6 +250,45 @@ Extracted: 3.5-4.5 GB (adapter files)
 3. Select **T4 GPU**
 4. Run the first cell again
 
+### Issue: "CUDA Setup Failed" or "bitsandbytes Error"
+
+**Symptoms:**
+```
+CUDA SETUP: CUDA detection failed!
+CUDA SETUP: Required library version not found: libbitsandbytes_cuda126.so
+RuntimeError: CUDA Setup failed despite GPU being available
+```
+
+**What happened:**
+This occurs when bitsandbytes doesn't have pre-compiled binaries for Google Colab's CUDA version (12.6).
+
+**Solution:**
+The notebook now automatically handles this! The dependency installation cell (Cell 3) includes:
+
+1. **Automatic CUDA 12.x compatibility:**
+   - Uses PyTorch with CUDA 12.1 support
+   - Installs latest bitsandbytes version
+   - Adds scipy dependency
+   - Includes automatic rebuild if needed
+
+2. **If error still occurs:**
+   ```python
+   # Run this in a new cell:
+   !pip install --upgrade --force-reinstall --no-cache-dir bitsandbytes
+
+   # Verify installation:
+   import bitsandbytes as bnb
+   print(f"bitsandbytes version: {bnb.__version__}")
+   ```
+
+3. **Alternative: Restart runtime**
+   - `Runtime` → `Restart runtime`
+   - Re-run dependency installation cell
+   - The automatic rebuild will fix it
+
+**Prevention:**
+Always use the latest version of the notebook from your EventHub project!
+
 ### Issue: "Llama 3 Access Denied"
 
 **Symptoms:**

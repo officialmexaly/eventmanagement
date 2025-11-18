@@ -103,6 +103,12 @@ Try asking:
 ### "No GPU Found"
 **Fix:** Runtime → Change runtime type → Select T4 GPU
 
+### "CUDA Setup Failed" or "bitsandbytes error"
+**Fix:** The notebook now automatically handles CUDA 12.x compatibility. If you still see errors:
+1. Click **Runtime** → **Restart runtime**
+2. Re-run the dependency installation cell
+3. The notebook will rebuild bitsandbytes for your CUDA version
+
 ### "Llama 3 Access Denied"
 **Fix:** Request access at https://huggingface.co/meta-llama/Meta-Llama-3-8B
 
