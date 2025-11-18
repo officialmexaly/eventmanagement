@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import AIAgent from './AIAgent';
 import { useApp } from './AppContext';
 import { LogIn, X } from 'lucide-react';
 
@@ -61,6 +62,9 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       </main>
 
       {!isAdminPage && <Footer />}
+
+      {/* AI Agent - Available on all pages */}
+      <AIAgent />
 
       {/* Login Modal */}
       {showLoginModal && (

@@ -30,3 +30,36 @@ const localStorageMock = {
   clear: jest.fn(),
 }
 global.localStorage = localStorageMock
+
+// Mock ReadableStream and TextEncoder for streaming tests
+if (typeof global.ReadableStream === 'undefined') {
+  global.ReadableStream = class ReadableStream {
+    constructor(underlyingSource) {
+      this.underlyingSource = underlyingSource
+      this.controller = {
+        enqueue: jest.fn(),
+        close: jest.fn(),
+      }
+      if (underlyingSource && underlyingSource.start) {
+        underlyingSource.start(this.controller)
+      }
+    }
+    getReader() {
+      return {
+        read: jest.fn().mockResolvedValue({ done: true, value: undefined }),
+        releaseLock: jest.fn(),
+      }
+    }
+  }
+}
+
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = class TextEncoder {
+    encode(str) {
+      return new Uint8Array([...str].map(c => c.charCodeAt(0)))
+    }
+  }
+}
+
+// Mock scrollIntoView
+Element.prototype.scrollIntoView = jest.fn()
