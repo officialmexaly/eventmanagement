@@ -52,6 +52,31 @@ export interface User {
   name: string;
   email: string;
   avatar?: string;
+  isOnline?: boolean;
+  lastSeen?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  timestamp: string;
+  read: boolean;
+  type: 'text' | 'image' | 'file';
+}
+
+export interface Conversation {
+  id: string;
+  type: 'direct' | 'event' | 'support';
+  participants: string[]; // user IDs
+  participantNames: string[];
+  eventId?: string; // for event chats
+  eventTitle?: string;
+  lastMessage?: ChatMessage;
+  unreadCount: number;
+  createdAt: string;
 }
 
 interface AppContextType {
@@ -62,6 +87,8 @@ interface AppContextType {
   reviews: Review[];
   favorites: string[];
   notifications: Notification[];
+  conversations: Conversation[];
+  messages: ChatMessage[];
   setUser: (user: User | null) => void;
   setIsAdmin: (isAdmin: boolean) => void;
   setEvents: (events: Event[]) => void;
@@ -77,6 +104,13 @@ interface AppContextType {
   setNotifications: (notifications: Notification[]) => void;
   addNotification: (notification: Notification) => void;
   markNotificationAsRead: (id: string) => void;
+  setConversations: (conversations: Conversation[]) => void;
+  addConversation: (conversation: Conversation) => void;
+  setMessages: (messages: ChatMessage[]) => void;
+  sendMessage: (message: ChatMessage) => void;
+  markMessagesAsRead: (conversationId: string) => void;
+  getConversationMessages: (conversationId: string) => ChatMessage[];
+  getTotalUnreadCount: () => number;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -91,6 +125,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   // Load data from localStorage
   useEffect(() => {
@@ -102,6 +138,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setReviews(data.reviews || []);
       setFavorites(data.favorites || []);
       setNotifications(data.notifications || []);
+      setConversations(data.conversations || []);
+      setMessages(data.messages || []);
     } else {
       // Initialize with sample data
       const sampleEvents: Event[] = [
@@ -183,9 +221,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       tickets,
       reviews,
       favorites,
-      notifications
+      notifications,
+      conversations,
+      messages
     }));
-  }, [events, tickets, reviews, favorites, notifications]);
+  }, [events, tickets, reviews, favorites, notifications, conversations, messages]);
 
   // Event management functions
   const addEvent = (event: Event) => {
@@ -230,6 +270,49 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     ));
   };
 
+  // Chat management
+  const addConversation = (conversation: Conversation) => {
+    setConversations([conversation, ...conversations]);
+  };
+
+  const sendMessage = (message: ChatMessage) => {
+    setMessages([...messages, message]);
+
+    // Update conversation's last message and unread count
+    setConversations(conversations.map(conv => {
+      if (conv.id === message.conversationId) {
+        return {
+          ...conv,
+          lastMessage: message,
+          unreadCount: message.senderId === user?.id ? conv.unreadCount : conv.unreadCount + 1
+        };
+      }
+      return conv;
+    }));
+  };
+
+  const markMessagesAsRead = (conversationId: string) => {
+    setMessages(messages.map(msg =>
+      msg.conversationId === conversationId && !msg.read
+        ? { ...msg, read: true }
+        : msg
+    ));
+
+    setConversations(conversations.map(conv =>
+      conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
+    ));
+  };
+
+  const getConversationMessages = (conversationId: string): ChatMessage[] => {
+    return messages
+      .filter(msg => msg.conversationId === conversationId)
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  };
+
+  const getTotalUnreadCount = (): number => {
+    return conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+  };
+
   const value: AppContextType = {
     user,
     isAdmin,
@@ -238,6 +321,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     reviews,
     favorites,
     notifications,
+    conversations,
+    messages,
     setUser,
     setIsAdmin,
     setEvents,
@@ -253,6 +338,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setNotifications,
     addNotification,
     markNotificationAsRead,
+    setConversations,
+    addConversation,
+    setMessages,
+    sendMessage,
+    markMessagesAsRead,
+    getConversationMessages,
+    getTotalUnreadCount,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

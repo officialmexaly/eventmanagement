@@ -257,7 +257,7 @@ export async function POST(req: NextRequest) {
 }
 
 // Execute tool functions
-async function executeToolany>(
+async function executeTool(
   toolName: string,
   input: any,
   events: any[],
