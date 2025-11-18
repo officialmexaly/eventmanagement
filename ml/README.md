@@ -2,27 +2,59 @@
 
 This directory contains everything needed to train and deploy your custom Llama 3 model for EventHub.
 
+## 🎯 Two Ways to Train
+
+### Option 1: Google Colab (Recommended - No GPU Needed!) 🌟
+
+Train on **free GPU** using Google Colab:
+
+1. **Upload notebook:** `ml/EventHub_Llama3_Training.ipynb` to [Google Colab](https://colab.research.google.com/)
+2. **Enable T4 GPU:** Runtime → Change runtime type → T4 GPU
+3. **Run all cells:** It will train automatically (2-3 hours)
+4. **Download model:** Get the zip file and use setup script
+
+**Full guide:** [COLAB_TRAINING_GUIDE.md](COLAB_TRAINING_GUIDE.md)
+
+### Option 2: Local GPU Training
+
+If you have NVIDIA GPU (16GB+ VRAM):
+
+```bash
+# One command training
+bash ml/train.sh
+
+# Or step by step
+python3 ml/prepare_training_data.py
+python3 ml/train_model.py
+```
+
+**Full guide:** [QUICKSTART.md](QUICKSTART.md)
+
 ## 📁 Directory Structure
 
 ```
 ml/
-├── README.md                    # This file
-├── QUICKSTART.md               # Quick start guide (start here!)
-├── requirements.txt            # Python dependencies
-├── config.py                   # Configuration settings
+├── README.md                           # This file
+├── COLAB_TRAINING_GUIDE.md            # 🌟 Train on Google Colab (free GPU!)
+├── QUICKSTART.md                      # Local GPU quick start
+├── requirements.txt                   # Python dependencies
+├── config.py                          # Configuration settings
 │
-├── prepare_training_data.py   # Generate training dataset
-├── train_model.py             # Fine-tune Llama 3 model
-├── inference_server.py        # FastAPI inference server
+├── EventHub_Llama3_Training.ipynb    # 🌟 Colab training notebook
+├── prepare_training_data.py          # Generate training dataset
+├── train_model.py                    # Fine-tune Llama 3 model
+├── inference_server.py               # FastAPI inference server
+├── demo_server.py                    # Demo server (no training needed)
 │
-├── train.sh                   # Training script (one command)
-├── start_server.sh            # Start inference server
+├── train.sh                          # Local training script
+├── start_server.sh                   # Start inference server
+├── setup_colab_model.sh              # 🌟 Setup model from Colab
 │
-├── data/                      # Training data (generated)
+├── data/                             # Training data (generated)
 │   ├── eventhub_train.jsonl
 │   └── eventhub_val.jsonl
 │
-└── models/                    # Trained models (generated)
+└── models/                           # Trained models (generated)
     └── eventhub-llama3/
         ├── adapter_config.json
         ├── adapter_model.bin
@@ -31,9 +63,20 @@ ml/
 
 ## 🚀 Quick Start
 
-**New to this?** Start with [QUICKSTART.md](QUICKSTART.md)
+### For Colab Training (No GPU Needed)
 
-**Already know what you're doing?**
+1. Open `ml/EventHub_Llama3_Training.ipynb` in [Google Colab](https://colab.research.google.com/)
+2. Enable T4 GPU runtime
+3. Run all cells
+4. Download trained model
+5. Extract and setup:
+   ```bash
+   bash ml/setup_colab_model.sh
+   ```
+
+**Full guide:** [COLAB_TRAINING_GUIDE.md](COLAB_TRAINING_GUIDE.md)
+
+### For Local GPU Training
 
 ```bash
 # Train
@@ -41,6 +84,15 @@ bash ml/train.sh
 
 # Serve
 bash ml/start_server.sh
+```
+
+**Full guide:** [QUICKSTART.md](QUICKSTART.md)
+
+### For Testing (No Training)
+
+```bash
+# Use demo server (no training required)
+python3 ml/demo_server.py
 ```
 
 ## 📄 File Descriptions
